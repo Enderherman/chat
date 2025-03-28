@@ -1,8 +1,6 @@
 package top.enderherman.easychat.entity.enums;
 
-import top.enderherman.easychat.common.utils.StringUtils;
-
-import java.util.Locale;
+import top.enderherman.easychat.utils.StringUtils;
 
 public enum JoinTypeEnum {
     PASS(0, "直接通过"),

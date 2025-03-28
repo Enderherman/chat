@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.enderherman.easychat.annotation.GlobalInterceptor;
-import top.enderherman.easychat.common.component.RedisComponent;
-import top.enderherman.easychat.common.constants.Constants;
+import top.enderherman.easychat.component.RedisComponent;
+import top.enderherman.easychat.constants.Constants;
 
-import top.enderherman.easychat.common.utils.RedisUtils;
+import top.enderherman.easychat.utils.RedisUtils;
 
-import top.enderherman.easychat.entity.vo.BaseResponse;
+import top.enderherman.easychat.common.BaseResponse;
 import top.enderherman.easychat.entity.vo.UserInfoVO;
 import top.enderherman.easychat.exception.BusinessException;
 import top.enderherman.easychat.service.UserInfoService;

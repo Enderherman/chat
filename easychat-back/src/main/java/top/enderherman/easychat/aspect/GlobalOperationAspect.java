@@ -9,17 +9,16 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import top.enderherman.easychat.common.constants.Constants;
-import top.enderherman.easychat.common.utils.RedisUtils;
+import top.enderherman.easychat.constants.Constants;
+import top.enderherman.easychat.utils.RedisUtils;
 import top.enderherman.easychat.annotation.GlobalInterceptor;
-import top.enderherman.easychat.common.utils.StringUtils;
+import top.enderherman.easychat.utils.StringUtils;
 import top.enderherman.easychat.entity.dto.TokenUserInfoDto;
-import top.enderherman.easychat.entity.enums.ResponseCodeEnum;
+import top.enderherman.easychat.common.ResponseCodeEnum;
 import top.enderherman.easychat.exception.BusinessException;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.lang.reflect.Method;
 
 @Slf4j

@@ -1,9 +1,9 @@
-package top.enderherman.easychat.common.component;
+package top.enderherman.easychat.component;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import top.enderherman.easychat.common.constants.Constants;
-import top.enderherman.easychat.common.utils.RedisUtils;
+import top.enderherman.easychat.constants.Constants;
+import top.enderherman.easychat.utils.RedisUtils;
 import top.enderherman.easychat.entity.dto.SysSettingDto;
 import top.enderherman.easychat.entity.dto.TokenUserInfoDto;
 

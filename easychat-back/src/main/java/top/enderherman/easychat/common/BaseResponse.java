@@ -1,4 +1,4 @@
-package top.enderherman.easychat.entity.vo;
+package top.enderherman.easychat.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,7 +37,7 @@ public class BaseResponse<T> implements Serializable {
     public static <T> BaseResponse<T> error(String message) {
         BaseResponse<T> baseResponse = new BaseResponse<>();
         baseResponse.message = message;
-        baseResponse.code = 0;
+        baseResponse.code = 501;
         return baseResponse;
     }
 

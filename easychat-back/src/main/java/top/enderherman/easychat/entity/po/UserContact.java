@@ -3,7 +3,7 @@ package top.enderherman.easychat.entity.po;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import top.enderherman.easychat.entity.enums.DateTimePatternEnum;
-import top.enderherman.easychat.utils.DateUtil;
+import top.enderherman.easychat.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -101,6 +101,6 @@ public class UserContact implements Serializable {
 
 	@Override
 	public String toString (){
-		return "用户id:"+(userId == null ? "空" : userId)+"，联系人id或者群组id:"+(contactId == null ? "空" : contactId)+"，联系人类型: 0:好友 1:群组:"+(contactType == null ? "空" : contactType)+"，创建时间:"+(createTime == null ? "空" : DateUtil.format(createTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()))+"，状态: 0:非好友 1:好友 2:已删除好友 3:被好友删除 4:已拉黑好友 5:被好友拉黑:"+(status == null ? "空" : status)+"，最后更新时间:"+(updateTime == null ? "空" : DateUtil.format(updateTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()));
+		return "用户id:"+(userId == null ? "空" : userId)+"，联系人id或者群组id:"+(contactId == null ? "空" : contactId)+"，联系人类型: 0:好友 1:群组:"+(contactType == null ? "空" : contactType)+"，创建时间:"+(createTime == null ? "空" : DateUtils.format(createTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()))+"，状态: 0:非好友 1:好友 2:已删除好友 3:被好友删除 4:已拉黑好友 5:被好友拉黑:"+(status == null ? "空" : status)+"，最后更新时间:"+(updateTime == null ? "空" : DateUtils.format(updateTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()));
 	}
 }

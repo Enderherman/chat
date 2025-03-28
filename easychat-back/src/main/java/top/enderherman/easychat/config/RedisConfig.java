@@ -1,4 +1,4 @@
-package top.enderherman.easychat.common.config;
+package top.enderherman.easychat.config;
 
 
 import org.springframework.context.annotation.Bean;

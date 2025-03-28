@@ -1,10 +1,10 @@
 package top.enderherman.easychat.controller;
 
-import top.enderherman.easychat.common.constants.Constants;
-import top.enderherman.easychat.common.utils.RedisUtils;
+import top.enderherman.easychat.constants.Constants;
+import top.enderherman.easychat.utils.RedisUtils;
 import top.enderherman.easychat.entity.dto.TokenUserInfoDto;
-import top.enderherman.easychat.entity.enums.ResponseCodeEnum;
-import top.enderherman.easychat.entity.vo.BaseResponse;
+import top.enderherman.easychat.common.ResponseCodeEnum;
+import top.enderherman.easychat.common.BaseResponse;
 import top.enderherman.easychat.exception.BusinessException;
 
 import javax.annotation.Resource;

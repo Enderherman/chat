@@ -1,5 +1,5 @@
 package top.enderherman.easychat.exception;
-import top.enderherman.easychat.entity.enums.ResponseCodeEnum;
+import top.enderherman.easychat.common.ResponseCodeEnum;
 
 
 public class BusinessException extends RuntimeException {

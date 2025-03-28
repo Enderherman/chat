@@ -1,8 +1,8 @@
-package top.enderherman.easychat.common.utils;
+package top.enderherman.easychat.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import top.enderherman.easychat.entity.enums.ResponseCodeEnum;
+import top.enderherman.easychat.common.ResponseCodeEnum;
 import top.enderherman.easychat.exception.BusinessException;
 
 import java.util.ArrayList;

@@ -1,16 +1,12 @@
 package top.enderherman.easychat.controller;
 
-import java.util.List;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.multipart.MultipartFile;
 import top.enderherman.easychat.annotation.GlobalInterceptor;
 import top.enderherman.easychat.entity.dto.TokenUserInfoDto;
-import top.enderherman.easychat.entity.query.GroupInfoQuery;
 import top.enderherman.easychat.entity.po.GroupInfo;
-import top.enderherman.easychat.entity.vo.BaseResponse;
+import top.enderherman.easychat.common.BaseResponse;
 import top.enderherman.easychat.service.GroupInfoService;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

@@ -16,8 +16,8 @@
     <artifactId>easychat</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
-    <name>easychat</name>
-    <description>easychat</description>
+    <name>easychat-back</name>
+    <description>easychat-back</description>
 
     <properties>
         <java.version>1.8</java.version>

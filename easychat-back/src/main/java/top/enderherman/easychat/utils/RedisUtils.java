@@ -1,10 +1,10 @@
-package top.enderherman.easychat.common.utils;
+package top.enderherman.easychat.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.stereotype.Component;
-import top.enderherman.easychat.entity.enums.ResponseCodeEnum;
+import top.enderherman.easychat.common.ResponseCodeEnum;
 import top.enderherman.easychat.exception.BusinessException;
 
 import javax.annotation.Resource;

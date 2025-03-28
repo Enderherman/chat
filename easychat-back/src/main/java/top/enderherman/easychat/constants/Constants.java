@@ -1,4 +1,4 @@
-package top.enderherman.easychat.common.constants;
+package top.enderherman.easychat.constants;
 
 import top.enderherman.easychat.entity.enums.UserContactTypeEnum;
 
@@ -69,4 +69,10 @@ public class Constants {
     public static final String ROBOT_UID = UserContactTypeEnum.USER.getPrefix() + "robot";
 
 
+    public static final String FILE_FOLDER = "file/";
+    
+    public static final String AVATAR_FOLDER = "avatar/";
+    
+    public static final String IMAGE_SUFFIX = ".png";
+    public static final String COVER_IMAGE_SUFFIX = "_cover.png";
 }

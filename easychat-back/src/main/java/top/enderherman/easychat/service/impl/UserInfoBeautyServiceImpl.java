@@ -13,7 +13,7 @@ import top.enderherman.easychat.entity.vo.PaginationResultVO;
 import top.enderherman.easychat.entity.query.SimplePage;
 import top.enderherman.easychat.mappers.UserInfoBeautyMapper;
 import top.enderherman.easychat.service.UserInfoBeautyService;
-import top.enderherman.easychat.common.utils.StringUtils;
+import top.enderherman.easychat.utils.StringUtils;
 
 
 /**

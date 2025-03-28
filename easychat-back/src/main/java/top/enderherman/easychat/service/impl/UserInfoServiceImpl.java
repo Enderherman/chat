@@ -5,15 +5,14 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import com.mysql.cj.log.Log;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
-import top.enderherman.easychat.common.component.RedisComponent;
-import top.enderherman.easychat.common.config.AppConfig;
-import top.enderherman.easychat.common.constants.Constants;
-import top.enderherman.easychat.common.utils.CopyUtils;
+import top.enderherman.easychat.component.RedisComponent;
+import top.enderherman.easychat.config.AppConfig;
+import top.enderherman.easychat.constants.Constants;
+import top.enderherman.easychat.utils.CopyUtils;
 import top.enderherman.easychat.entity.dto.TokenUserInfoDto;
 import top.enderherman.easychat.entity.enums.*;
 import top.enderherman.easychat.entity.po.UserInfoBeauty;
@@ -27,7 +26,7 @@ import top.enderherman.easychat.exception.BusinessException;
 import top.enderherman.easychat.mappers.UserInfoBeautyMapper;
 import top.enderherman.easychat.mappers.UserInfoMapper;
 import top.enderherman.easychat.service.UserInfoService;
-import top.enderherman.easychat.common.utils.StringUtils;
+import top.enderherman.easychat.utils.StringUtils;
 
 
 /**

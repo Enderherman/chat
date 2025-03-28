@@ -13,7 +13,7 @@ import top.enderherman.easychat.entity.vo.PaginationResultVO;
 import top.enderherman.easychat.entity.query.SimplePage;
 import top.enderherman.easychat.mappers.UserContactApplyMapper;
 import top.enderherman.easychat.service.UserContactApplyService;
-import top.enderherman.easychat.utils.StringTools;
+import top.enderherman.easychat.utils.StringUtils;
 
 
 /**
@@ -91,7 +91,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
 	 */
 	@Override
 	public Integer updateByParam(UserContactApply bean, UserContactApplyQuery param) {
-		StringTools.checkParam(param);
+		StringUtils.checkParam(param);
 		return this.userContactApplyMapper.updateByParam(bean, param);
 	}
 
@@ -100,7 +100,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
 	 */
 	@Override
 	public Integer deleteByParam(UserContactApplyQuery param) {
-		StringTools.checkParam(param);
+		StringUtils.checkParam(param);
 		return this.userContactApplyMapper.deleteByParam(param);
 	}
 

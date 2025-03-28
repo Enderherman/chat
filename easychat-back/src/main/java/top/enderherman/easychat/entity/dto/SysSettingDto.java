@@ -1,7 +1,7 @@
 package top.enderherman.easychat.entity.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import top.enderherman.easychat.common.constants.Constants;
+import top.enderherman.easychat.constants.Constants;
 
 import java.io.Serializable;
 

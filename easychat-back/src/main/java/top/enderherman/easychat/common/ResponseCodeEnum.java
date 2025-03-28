@@ -1,4 +1,4 @@
-package top.enderherman.easychat.entity.enums;
+package top.enderherman.easychat.common;
 
 
 public enum ResponseCodeEnum {

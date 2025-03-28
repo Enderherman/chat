@@ -3,7 +3,7 @@ package top.enderherman.easychat.entity.po;
 
 import java.util.Date;
 import top.enderherman.easychat.entity.enums.DateTimePatternEnum;
-import top.enderherman.easychat.common.utils.DateUtils;
+import top.enderherman.easychat.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 

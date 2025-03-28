@@ -1,4 +1,4 @@
-package top.enderherman.easychat.common.config;
+package top.enderherman.easychat.config;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
