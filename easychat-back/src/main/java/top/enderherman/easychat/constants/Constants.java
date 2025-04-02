@@ -68,16 +68,22 @@ public class Constants {
 
     public static final String ROBOT_UID = UserContactTypeEnum.USER.getPrefix() + "robot";
 
-
     public static final String FILE_FOLDER = "file/";
 
     public static final String AVATAR_FOLDER = "avatar/";
 
+    public static final String APP_UPDATE_FILE = "app/";
+
     public static final String IMAGE_SUFFIX = ".png";
 
+
     public static final String COVER_IMAGE_SUFFIX = "_cover.png";
+
+    public static final String APP_EXE_SUFFIX = ".exe";
+
 
     public static final String APPLY_INFO_TEMPLATE = "我是%s";
 
     public static final String REGEX_PASSWORD = "^(?=.*\\d)(?=.*[a-zA-Z])[\\da-zA-Z~!@#$%^&*_]{8,18}$";
 }
+
