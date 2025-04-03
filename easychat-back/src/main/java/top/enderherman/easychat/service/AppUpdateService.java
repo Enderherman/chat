@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 import top.enderherman.easychat.entity.query.AppUpdateQuery;
 import top.enderherman.easychat.entity.po.AppUpdate;
+import top.enderherman.easychat.entity.vo.AppUpdateVO;
 import top.enderherman.easychat.entity.vo.PaginationResultVO;
 
 
@@ -84,5 +85,5 @@ public interface AppUpdateService {
 	/**
 	 * 获取最后更新版本
 	 */
-	void getLatestUpdate(String version, String uid);
+	AppUpdateVO getLatestUpdate(String version, String uid);
 }

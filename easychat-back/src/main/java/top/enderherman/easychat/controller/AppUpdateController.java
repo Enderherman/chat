@@ -8,12 +8,12 @@ import top.enderherman.easychat.annotation.GlobalInterceptor;
 import top.enderherman.easychat.common.BaseResponse;
 import top.enderherman.easychat.entity.po.AppUpdate;
 import top.enderherman.easychat.entity.query.AppUpdateQuery;
+import top.enderherman.easychat.entity.vo.AppUpdateVO;
 import top.enderherman.easychat.entity.vo.PaginationResultVO;
 import top.enderherman.easychat.service.AppUpdateService;
 import top.enderherman.easychat.utils.StringUtils;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
@@ -60,8 +60,8 @@ public class AppUpdateController {
      */
     @RequestMapping("/postUpdate")
     @GlobalInterceptor(checkAdmin = true)
-    public BaseResponse<?> postUpdate(@NotNull Integer id,@NotNull Integer status,String grayscaleUid) {
-        appUpdateService.postUpdate(id,status,grayscaleUid);
+    public BaseResponse<?> postUpdate(@NotNull Integer id, @NotNull Integer status, String grayscaleUid) {
+        appUpdateService.postUpdate(id, status, grayscaleUid);
         return BaseResponse.success();
     }
 
@@ -69,12 +69,8 @@ public class AppUpdateController {
      * 检测更新
      */
     @RequestMapping("/checkUpdate")
-    public BaseResponse<?> checkUpdate(String version,String uid) {
-
-        if(StringUtils.isEmpty(version)){
-            return BaseResponse.success();
-        }
-        appUpdateService.getLatestUpdate(version,uid);
-        return BaseResponse.success();
+    @GlobalInterceptor
+    public BaseResponse<AppUpdateVO> checkUpdate(String version, String uid) {
+        return StringUtils.isEmpty(version) ? BaseResponse.success() : BaseResponse.success(appUpdateService.getLatestUpdate(version, uid));
     }
 }

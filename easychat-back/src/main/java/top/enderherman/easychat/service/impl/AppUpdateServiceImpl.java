@@ -2,6 +2,7 @@ package top.enderherman.easychat.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -18,11 +19,13 @@ import top.enderherman.easychat.entity.enums.AppUpdateStatusEnum;
 import top.enderherman.easychat.entity.enums.PageSize;
 import top.enderherman.easychat.entity.query.AppUpdateQuery;
 import top.enderherman.easychat.entity.po.AppUpdate;
+import top.enderherman.easychat.entity.vo.AppUpdateVO;
 import top.enderherman.easychat.entity.vo.PaginationResultVO;
 import top.enderherman.easychat.entity.query.SimplePage;
 import top.enderherman.easychat.exception.BusinessException;
 import top.enderherman.easychat.mappers.AppUpdateMapper;
 import top.enderherman.easychat.service.AppUpdateService;
+import top.enderherman.easychat.utils.CopyUtils;
 import top.enderherman.easychat.utils.StringUtils;
 
 
@@ -139,10 +142,10 @@ public class AppUpdateServiceImpl implements AppUpdateService {
     @Override
     public Integer deleteAppUpdateById(Integer id) {
 
-            AppUpdate dbInfo = appUpdateMapper.selectById(id);
-            if (!AppUpdateStatusEnum.INIT.getStatus().equals(dbInfo.getStatus())) {
-                throw new BusinessException(ResponseCodeEnum.CODE_600);
-            }
+        AppUpdate dbInfo = appUpdateMapper.selectById(id);
+        if (!AppUpdateStatusEnum.INIT.getStatus().equals(dbInfo.getStatus())) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
 
         return this.appUpdateMapper.deleteById(id);
     }
@@ -229,9 +232,21 @@ public class AppUpdateServiceImpl implements AppUpdateService {
      * 获取最后更新版本
      */
     @Override
-    public void getLatestUpdate(String version, String uid) {
-       //TODO  p21 4:56
-
+    public AppUpdateVO getLatestUpdate(String version, String uid) {
+        AppUpdate update = appUpdateMapper.selectLatestUpdate(version, uid);
+        if (update == null)
+            return null;
+        AppUpdateVO vo = CopyUtils.copy(update, AppUpdateVO.class);
+        if (AppUpdateFileTypeEnum.LOCAL.getType().equals(update.getFileType())) {
+            File file = new File(appConfig.getProjectFolder() + Constants.FILE_FOLDER + Constants.APP_UPDATE_FILE + update.getId() + Constants.APP_EXE_SUFFIX);
+            vo.setSize(file.length());
+        } else {
+            vo.setSize(0L);
+        }
+        vo.setUpdateList(Arrays.asList(update.getUpdateDescArray()));
+        String fileName = Constants.APP_NAME + update.getVersion() + Constants.APP_EXE_SUFFIX;
+        vo.setFileName(fileName);
+        return vo;
     }
 
 
