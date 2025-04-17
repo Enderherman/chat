@@ -174,7 +174,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
             //TODO 新建群聊记得传头像喔
             if (avatarFile == null) {
-                throw new BusinessException(ResponseCodeEnum.CODE_600);
+                //throw new BusinessException(ResponseCodeEnum.CODE_600);
             }
 
             groupInfo.setCreateTime(currentDate);
@@ -198,7 +198,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         //2.修改
         else {
             GroupInfo dbInfo = groupInfoMapper.selectByGroupId(groupInfo.getGroupId());
-            if (dbInfo.getGroupOwnId().equals(groupInfo.getGroupOwnId())) {
+            if (!dbInfo.getGroupOwnId().equals(groupInfo.getGroupOwnId())) {
                 throw new BusinessException(ResponseCodeEnum.CODE_600);
             }
 

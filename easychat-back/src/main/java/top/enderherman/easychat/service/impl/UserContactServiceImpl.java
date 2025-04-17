@@ -338,6 +338,7 @@ public class UserContactServiceImpl implements UserContactService {
         if (UserContactTypeEnum.USER == contactTypeEnum) {
             query.setQueryContactInfo(true);
         } else {
+            query.setQueryMemberCount(true);
             query.setQueryGroupInfo(true);
             query.setQueryExcludeMyGroup(true);
         }
@@ -371,7 +372,7 @@ public class UserContactServiceImpl implements UserContactService {
         if (status.equals(UserContactStatusEnum.DEL.getStatus())) {
             friend.setStatus(UserContactStatusEnum.DEL_BE.getStatus());
         }
-        if (status.equals(UserContactStatusEnum.BLACKLIST_BE.getStatus())) {
+        if (status.equals(UserContactStatusEnum.BLACKLIST.getStatus())) {
             friend.setStatus(UserContactStatusEnum.BLACKLIST_BE.getStatus());
         }
         friend.setUpdateTime(new Date());

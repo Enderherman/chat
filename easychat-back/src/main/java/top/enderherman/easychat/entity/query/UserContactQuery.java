@@ -70,6 +70,10 @@ public class UserContactQuery extends BaseParam {
      * 查询状态的数组
      */
     private Integer[] statusArray;
+    /**
+     * 是否查询群成员
+     */
+    private Boolean queryMemberCount;
 
 
     public Boolean getQueryContactInfo() {
@@ -206,5 +210,13 @@ public class UserContactQuery extends BaseParam {
 
     public void setStatusArray(Integer[] statusArray) {
         this.statusArray = statusArray;
+    }
+
+    public Boolean getQueryMemberCount() {
+        return queryMemberCount;
+    }
+
+    public void setQueryMemberCount(Boolean queryMemberCount) {
+        this.queryMemberCount = queryMemberCount;
     }
 }

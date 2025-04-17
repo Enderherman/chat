@@ -17,7 +17,7 @@ import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
-@RestController
+@RestController("appUpdateController")
 @RequestMapping("/app")
 public class AppUpdateController {
 

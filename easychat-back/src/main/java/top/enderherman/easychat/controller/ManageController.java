@@ -79,7 +79,7 @@ public class ManageController extends ABaseController {
     public BaseResponse<PaginationResultVO<GroupInfo>> loadGroup(GroupInfoQuery query) {
         query.setOrderBy("create_time desc");
         query.setQueryGroupOwnerName(true);
-        query.setQueryGroupOwnerName(true);
+        query.setQueryMemberCount(true);
         PaginationResultVO<GroupInfo> listByPage = groupInfoService.findListByPage(query);
         return BaseResponse.success(listByPage);
     }

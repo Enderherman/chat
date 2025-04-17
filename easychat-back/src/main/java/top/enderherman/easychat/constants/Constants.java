@@ -55,6 +55,8 @@ public class Constants {
     /**
      * redis过期时间设置
      */
+    public static final Integer REDIS_KEY_EXPIRES_HEART_BEAT = 6;
+
     public static final Integer REDIS_KEY_EXPIRES_ONE_MIN = 60;
 
     public static final Integer REDIS_KEY_EXPIRES_FIVE_MIN = REDIS_KEY_EXPIRES_ONE_MIN * 5;

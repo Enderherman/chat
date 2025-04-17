@@ -69,6 +69,8 @@ public class GroupInfoController extends ABaseController {
     public BaseResponse<?> loadMyGroup(HttpServletRequest request) {
         TokenUserInfoDto userDto = getTokenUserDto(request);
         GroupInfoQuery query = new GroupInfoQuery();
+        query.setStatus(GroupStatusEnum.NORMAL.getStatus());
+        query.setQueryMemberCount(true);
         query.setGroupOwnId(userDto.getUserId());
         query.setOrderBy("create_time desc");
         List<GroupInfo> groupInfoList = groupInfoService.findListByParam(query);
@@ -105,6 +107,7 @@ public class GroupInfoController extends ABaseController {
         UserContactQuery query = new UserContactQuery();
         query.setContactId(groupId);
         query.setQueryUserInfo(true);
+
         query.setOrderBy("create_time desc");
         query.setStatus(UserContactStatusEnum.FRIEND.getStatus());
         List<UserContact> userContactList = userContactService.findListByParam(query);

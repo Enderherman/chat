@@ -179,7 +179,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
             throw new BusinessException(ResponseCodeEnum.CODE_600);
         }
         UserContactApply applyInfo = userContactApplyMapper.selectByApplyId(applyId);
-        if (applyInfo == null || userId.equals(applyInfo.getReceiveUserId())) {
+        if (applyInfo == null || !userId.equals(applyInfo.getReceiveUserId())) {
             throw new BusinessException(ResponseCodeEnum.CODE_600);
         }
         UserContactApply updateInfo = new UserContactApply();
@@ -190,7 +190,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
         query.setApplyId(applyId);
         query.setStatus(UserContactApplyStatusEnum.INIT.getStatus());
 
-        Integer count = userContactApplyMapper.updateByParam(applyInfo, query);
+        Integer count = userContactApplyMapper.updateByParam(updateInfo, query);
         if (count == 0) {
             throw new BusinessException(ResponseCodeEnum.CODE_600);
         }

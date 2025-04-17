@@ -92,28 +92,28 @@
 
         <if test="query.queryGroupInfo">
             ,g.group_name as contactName
+            <if test="query.queryMemberCount">
+                ,(SELECT COUNT(1) FROM user_contact uc WHERE uc.contact_id = g.group_id ) as memberCount
+            </if>
         </if>
-
 
         FROM user_contact as c
 
         <if test="query.queryUserInfo">
             inner join user_info u on c.user_id=u.user_id
         </if>
+
         <if test="query.queryContactInfo">
             inner join user_info u on c.contact_id=u.user_id
         </if>
+
         <if test="query.queryGroupInfo">
-            inner join group_info g on c.contact=g.group_id
-            <if test="queryExcludeMyGroup">
-                and g.group_onwer_id != c.user_id
+            inner join group_info g on c.contact_id=g.group_id
+            <if test="query.queryExcludeMyGroup">
+                and g.group_own_id != c.user_id
             </if>
         </if>
-
-
         <include refid="query_condition"/>
-
-
         <if test="query.orderBy!=null">
             order by ${query.orderBy}
         </if>

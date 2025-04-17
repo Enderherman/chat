@@ -101,8 +101,7 @@ public class UserContactController extends ABaseController {
     public BaseResponse<?> loadContact(HttpServletRequest request,
                                        @NotNull String contactType) {
         TokenUserInfoDto userDto = getTokenUserDto(request);
-        List<UserContact> list = userContactService.loadContact(userDto.getUserId(), contactType);
-        return getSuccessResponseVO(list);
+        return getSuccessResponseVO(userContactService.loadContact(userDto.getUserId(), contactType));
     }
 
     /**
@@ -110,7 +109,7 @@ public class UserContactController extends ABaseController {
      */
     @RequestMapping("/getContactInfo")
     @GlobalInterceptor
-    public BaseResponse<?> getContactInfo(HttpServletRequest request, @NotNull String contactId) {
+    public BaseResponse<?> getContactInfo(HttpServletRequest request, @NotEmpty String contactId) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserDto(request);
         UserInfo userInfo = userInfoService.getUserInfoByUserId(contactId);
         UserInfoVO userInfoVO = CopyUtils.copy(userInfo, UserInfoVO.class);

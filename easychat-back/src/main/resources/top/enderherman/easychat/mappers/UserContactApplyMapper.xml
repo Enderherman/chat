@@ -305,7 +305,7 @@
 
     <!--多条件修改-->
     <update id="updateByParam" parameterType="top.enderherman.easychat.entity.query.UserContactApplyQuery">
-        UPDATE user_contact_apply
+        UPDATE user_contact_apply as a
         <set>
             <if test="bean.applyUserId != null">
                 apply_user_id = #{bean.applyUserId},
