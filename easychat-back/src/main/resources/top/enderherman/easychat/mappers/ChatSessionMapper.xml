@@ -207,7 +207,7 @@
 
 	<!-- 根据SessionId删除-->
 	<delete id="deleteBySessionId">
-		delete from chat_session where session_id=#{sessionId}
+		delete from chat_session where session_id = #{sessionId}
 	</delete>
 
 	<!-- 根据PrimaryKey获取对象-->
