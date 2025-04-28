@@ -28,6 +28,13 @@ public class BaseResponse<T> implements Serializable {
         return baseResponse;
     }
 
+    public static <T> BaseResponse<T> success(String message) {
+        BaseResponse<T> baseResponse = new BaseResponse<>();
+        baseResponse.status = message.isEmpty() ? "success" : message;
+        baseResponse.code = 200;
+        return baseResponse;
+    }
+
     public static <T> BaseResponse<T> success(T object) {
         BaseResponse<T> baseResponse = new BaseResponse<>();
         baseResponse.status = "success";

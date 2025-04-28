@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -16,6 +17,12 @@ import top.enderherman.easychat.common.ResponseCodeEnum;
 import top.enderherman.easychat.component.RedisComponent;
 import top.enderherman.easychat.config.AppConfig;
 import top.enderherman.easychat.constants.Constants;
+import top.enderherman.easychat.entity.dto.MessageSendDTO;
+import top.enderherman.easychat.entity.po.UserContact;
+import top.enderherman.easychat.entity.query.UserContactQuery;
+import top.enderherman.easychat.mappers.UserContactMapper;
+import top.enderherman.easychat.service.ChatSessionUserService;
+import top.enderherman.easychat.service.UserContactService;
 import top.enderherman.easychat.utils.CopyUtils;
 import top.enderherman.easychat.entity.dto.TokenUserInfoDto;
 import top.enderherman.easychat.entity.enums.*;
@@ -31,6 +38,7 @@ import top.enderherman.easychat.mappers.UserInfoBeautyMapper;
 import top.enderherman.easychat.mappers.UserInfoMapper;
 import top.enderherman.easychat.service.UserInfoService;
 import top.enderherman.easychat.utils.StringUtils;
+import top.enderherman.easychat.webSocket.MessageHandler;
 
 
 /**
@@ -40,16 +48,30 @@ import top.enderherman.easychat.utils.StringUtils;
 public class UserInfoServiceImpl implements UserInfoService {
 
     @Resource
+    private AppConfig appConfig;
+
+    @Resource
+    private RedisComponent redisComponent;
+
+    @Resource
+    private MessageHandler messageHandler;
+
+    @Resource
+    private UserContactService userContactService;
+
+    @Resource
+    private ChatSessionUserService chatSessionUserService;
+
+    @Resource
     private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
 
     @Resource
     private UserInfoBeautyMapper<UserInfoBeauty, UserInfoBeautyQuery> userInfoBeautyMapper;
 
     @Resource
-    private AppConfig appConfig;
+    private UserContactMapper<UserContact,UserContactQuery> userContactMapper;
 
-    @Resource
-    private RedisComponent redisComponent;
+
 
     /**
      * 根据条件查询列表
@@ -210,13 +232,18 @@ public class UserInfoServiceImpl implements UserInfoService {
         userInfo.setPassword(StringUtils.encodingByMd5(password));
         userInfo.setCreateTime(current);
         userInfo.setStatus(UserStatusEnum.ENABLE.getStatus());
-        userInfo.setLastOffTime(current.getTime());
+        userInfo.setLastOffTime(current.getTime()-1000);
         userInfo.setJoinType(JoinTypeEnum.APPLY.getType());
         userInfoMapper.insert(userInfo);
-        //TODO 增加机器人好友
+
+        //添加机器人好友
+        userContactService.addRobotContact(userInfo.getUserId());
 
     }
 
+    /**
+     * 登录
+     */
     @Override
     public UserInfoVO login(String email, String password) {
         UserInfo userInfo = userInfoMapper.selectByEmail(email);
@@ -235,8 +262,17 @@ public class UserInfoServiceImpl implements UserInfoService {
             throw new BusinessException("此账号已在别处登录");
         }
 
-        //TODO 查询群组 联系人
-
+        //查询联系人
+        UserContactQuery userContactQuery = new UserContactQuery();
+        userContactQuery.setUserId(userInfo.getUserId());
+        userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+        List<UserContact> list = userContactMapper.selectList(userContactQuery);
+        List<String> contactIdList=list.stream().map(UserContact::getContactId).collect(Collectors.toList());
+        //保存联系人信息到redis中
+        redisComponent.deleteContactBatch(userInfo.getUserId());
+        if(!contactIdList.isEmpty()){
+            redisComponent.saveContactBatch(userInfo.getUserId(), contactIdList);
+        }
 
         TokenUserInfoDto dto = getTokenUserInfoDto(userInfo);
         //存储登录信息到redis中
@@ -273,10 +309,21 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         UserInfo dbInfo = userInfoMapper.selectByUserId(userInfo.getUserId());
         userInfoMapper.updateByUserId(userInfo, userInfo.getUserId());
+        //更新会话昵称
         String contactNameUpdate = null;
         if (!dbInfo.getNickName().equals(userInfo.getNickName())) {
             contactNameUpdate = userInfo.getNickName();
         }
+        if(contactNameUpdate == null){
+            return;
+        }
+
+        //更新redis信息
+        TokenUserInfoDto tokenUserInfo = redisComponent.getTokenUserInfoDtoByUserId(userInfo.getUserId());
+        tokenUserInfo.setNickName(contactNameUpdate);
+        redisComponent.saveTokenUserInfoDto(tokenUserInfo);
+
+        chatSessionUserService.updateRedundancyInfo(contactNameUpdate, userInfo.getUserId());
 
     }
 
@@ -299,7 +346,12 @@ public class UserInfoServiceImpl implements UserInfoService {
      */
     @Override
     public void forcedOffOnline(String userId) {
-        //TODO 强制下线
+        MessageSendDTO<?> messageSendDTO = new MessageSendDTO<>();
+        messageSendDTO.setContactType(UserContactTypeEnum.USER.getType());
+        messageSendDTO.setMessageType(MessageTypeEnum.FORCE_OFF_LINE.getType());
+        messageSendDTO.setContactId(userId);
+        messageHandler.sendMessage(messageSendDTO);
+
     }
 
     private TokenUserInfoDto getTokenUserInfoDto(UserInfo userInfo) {

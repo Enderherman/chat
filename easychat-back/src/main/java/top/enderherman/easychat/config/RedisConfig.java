@@ -1,14 +1,43 @@
 package top.enderherman.easychat.config;
 
 
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
+@Slf4j
 @Configuration
 public class RedisConfig<V> {
+
+
+    @Value("${spring.redis.host:}")
+    private String redisHost;
+
+    @Value("${spring.redis.port:}")
+    private Integer redisPort;
+
+    @Value("${spring.redis.password:}")
+    private String password;
+
+    @Bean(name="redissonClient", destroyMethod = "shutdown")
+    public RedissonClient redissonClient() {
+        try {
+            Config config = new Config();
+            config.useSingleServer().setAddress("redis://" + redisHost + ":" + redisPort);
+            return Redisson.create(config);
+        } catch (Exception e) {
+            log.error("Redis 配置错误，请检查 Redis 配置",e);
+        }
+        return null;
+    }
+
 
     @Bean("redisTemplate")
     public RedisTemplate<String, V> redisTemplate(RedisConnectionFactory factory) {

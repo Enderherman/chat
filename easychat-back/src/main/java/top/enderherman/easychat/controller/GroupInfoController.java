@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 import top.enderherman.easychat.annotation.GlobalInterceptor;
 import top.enderherman.easychat.entity.dto.TokenUserInfoDto;
 import top.enderherman.easychat.entity.enums.GroupStatusEnum;
+import top.enderherman.easychat.entity.enums.MessageTypeEnum;
 import top.enderherman.easychat.entity.enums.UserContactStatusEnum;
 import top.enderherman.easychat.entity.po.GroupInfo;
 import top.enderherman.easychat.common.BaseResponse;
@@ -49,7 +50,7 @@ public class GroupInfoController extends ABaseController {
                                      String groupNotice,
                                      @NotNull Integer joinType,
                                      MultipartFile avatarFile,
-                                     MultipartFile avatarCover) {
+                                     MultipartFile coverFile) {
         TokenUserInfoDto tokenUserDto = getTokenUserDto(request);
         GroupInfo groupInfo = new GroupInfo();
         groupInfo.setGroupId(groupId);
@@ -57,7 +58,7 @@ public class GroupInfoController extends ABaseController {
         groupInfo.setGroupNotice(groupNotice);
         groupInfo.setGroupOwnId(tokenUserDto.getUserId());
         groupInfo.setJoinType(joinType);
-        groupInfoService.saveGroup(groupInfo, avatarFile, avatarCover);
+        groupInfoService.saveGroup(groupInfo, avatarFile, coverFile);
         return getSuccessResponseVO(null);
     }
 
@@ -108,12 +109,35 @@ public class GroupInfoController extends ABaseController {
         query.setContactId(groupId);
         query.setQueryUserInfo(true);
 
-        query.setOrderBy("create_time desc");
+        query.setOrderBy("create_time asc");
         query.setStatus(UserContactStatusEnum.FRIEND.getStatus());
         List<UserContact> userContactList = userContactService.findListByParam(query);
         GroupInfoVO groupInfoVO = new GroupInfoVO(groupInfo, userContactList);
         return getSuccessResponseVO(groupInfoVO);
 
+    }
+
+    @GlobalInterceptor
+    @PostMapping("/leaveGroup")
+    public BaseResponse<String> leaveGroup(HttpServletRequest request,
+                                           @NotEmpty String groupId) {
+        TokenUserInfoDto userDto = getTokenUserDto(request);
+        groupInfoService.leaveGroup(userDto.getUserId(), groupId, MessageTypeEnum.LEAVE_GROUP);
+        return BaseResponse.success("退群成功");
+    }
+
+    /**
+     * 添加或移除群聊
+     */
+    @GlobalInterceptor
+    @PostMapping("/addOrRemoveGroupUser")
+    public BaseResponse<String> addOrRemoveGroupUser(HttpServletRequest request,
+                                                     @NotEmpty String groupId,
+                                                     @NotEmpty String selectContacts,
+                                                     @NotNull Integer opType) {
+        TokenUserInfoDto tokenUserInfoDto = getTokenUserDto(request);
+        groupInfoService.addOrRemoveGroupUser(tokenUserInfoDto, groupId, selectContacts, opType);
+        return BaseResponse.success(opType == 0 ? "移除成功" : "添加成功");
     }
 
 
@@ -133,5 +157,6 @@ public class GroupInfoController extends ABaseController {
         }
         return groupInfo;
     }
+
 
 }

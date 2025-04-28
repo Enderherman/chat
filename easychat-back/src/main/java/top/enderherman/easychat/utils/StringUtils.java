@@ -8,6 +8,7 @@ import top.enderherman.easychat.exception.BusinessException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 
 public class StringUtils {
@@ -98,4 +99,83 @@ public class StringUtils {
     public static String encodingByMd5(String originString) {
         return isEmpty(originString) ? null : DigestUtils.md5Hex(originString);
     }
+
+
+    /**
+     * 去除HTML注入
+     */
+    public static String cleanHtmlTag(String content) {
+        if (isEmpty(content)) {
+            return content;
+        }
+        content = content.replaceAll("<", "&lt;");
+        content = content.replaceAll(">", "&gt;");
+        content = content.replaceAll("\r\n", "<br>");
+        content = content.replaceAll("\n", "<br>");
+        content = content.replaceAll("\"", "&quot;");
+        content = content.replaceAll("'", "&apos;");
+        return content;
+    }
+
+    /**
+     * 生成单独聊天会话id
+     */
+    public static String getChatSessionId4User(String[] userIds){
+        Arrays.sort(userIds);
+        return encodingByMd5(StringUtils.join(userIds,""));
+
+    }
+
+
+    /**
+     * 生成群聊会话Id
+     */
+    public static String getChatSessionId4Group(String groupId) {
+        return encodingByMd5(groupId);
+    }
+
+    /**
+     * 拼接字符串
+     */
+    private static String join(String[] userIds, String replace) {
+        if (userIds == null || userIds.length == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < userIds.length; i++) {
+            sb.append(userIds[i]);
+            if (i < userIds.length - 1) {
+                sb.append(replace);
+            }
+        }
+        return sb.toString();
+    }
+
+
+    /**
+     * 获取文件后缀
+     */
+    public static String getFileSuffix(String fileName){
+        if(fileName==null|| fileName.isEmpty()){
+            return "";
+        }
+        int index = fileName.lastIndexOf(".");
+        if (index == -1){
+            return "";
+        }
+        String suffix = fileName.substring(index);
+        return suffix;
+    }
+
+    /**
+     * 校验是否是数字
+     */
+    public static boolean isNumber(String str){
+        if (null == str) {
+            return false;
+        }
+        String regex = "^[0-9]+$";
+        return str.matches(regex);
+    }
+
 }

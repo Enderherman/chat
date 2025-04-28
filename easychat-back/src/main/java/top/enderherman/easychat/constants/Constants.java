@@ -3,9 +3,12 @@ package top.enderherman.easychat.constants;
 import top.enderherman.easychat.entity.enums.UserContactTypeEnum;
 
 public class Constants {
+
     public static final String ZERO_STR = "0";
 
     public static final Integer ZERO = 0;
+
+    public static final Integer ONE = 1;
 
     public static final Integer LENGTH_5 = 5;
 
@@ -51,6 +54,7 @@ public class Constants {
 
     //系统默认设置
     public static final String REDIS_KEY_SYS_SETTING = "easychat:syssetting:";
+    public static final Long MILLISECONDS_THREE_DAY = 3 * 24 * 60 * 60 * 1000L;
 
     /**
      * redis过期时间设置
@@ -67,6 +71,7 @@ public class Constants {
 
     public static final Integer REDIS_KEY_EXPIRES_DAY = REDIS_KEY_EXPIRES_ONE_MIN * 60 * 24;
 
+    public static final String REDIS_KEY_USER_CONTACT = "easychat:ws:user:contact:";
 
     public static final String ROBOT_UID = UserContactTypeEnum.USER.getPrefix() + "robot";
 
@@ -88,6 +93,13 @@ public class Constants {
     public static final String APPLY_INFO_TEMPLATE = "我是%s";
 
     public static final String REGEX_PASSWORD = "^(?=.*\\d)(?=.*[a-zA-Z])[\\da-zA-Z~!@#$%^&*_]{8,18}$";
+
+
+    public static final String[] IMAGE_SUFFIX_LIST = new String[]{".jpeg", ".jpg", ".png", ".gif", ".bmp", ".webp"};
+
+    public static final String[] VIDEO_SUFFIX_LIST = new String[]{".mp4", ".avi", ".rmvb", ".mkv", ".mov"};
+    public static final Long FILE_SIZE_MB = 1024 * 1024L;
+
 
 }
 

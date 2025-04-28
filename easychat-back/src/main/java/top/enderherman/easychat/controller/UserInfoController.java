@@ -22,6 +22,7 @@ import top.enderherman.easychat.entity.vo.UserInfoVO;
 import top.enderherman.easychat.exception.BusinessException;
 import top.enderherman.easychat.service.UserInfoService;
 import top.enderherman.easychat.utils.StringUtils;
+import top.enderherman.easychat.webSocket.ChannelContextUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -49,6 +50,9 @@ public class UserInfoController extends ABaseController {
 
     @Resource
     private UserInfoService userInfoService;
+
+    @Resource
+    private ChannelContextUtils channelContextUtils;
 
 
     /**
@@ -112,7 +116,7 @@ public class UserInfoController extends ABaseController {
     /**
      * 获取系统配置
      */
-    @GetMapping("/getSysSetting")
+    @PostMapping("/getSysSetting")
     @GlobalInterceptor
     public BaseResponse<?> getSysSetting() {
         return getSuccessResponseVO(redisComponent.getSysSetting());
@@ -139,10 +143,10 @@ public class UserInfoController extends ABaseController {
     public BaseResponse<?> saveUserInfo(HttpServletRequest request,
                                         UserInfo userInfo,
                                         MultipartFile avatarFile,
-                                        MultipartFile avatarCoverFile) throws IOException {
+                                        MultipartFile coverFile) throws IOException {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserDto(request);
         userInfo.setUserId(tokenUserInfoDto.getUserId());
-        userInfoService.updateUserInfo(userInfo, avatarFile, avatarCoverFile);
+        userInfoService.updateUserInfo(userInfo, avatarFile, coverFile);
         return getUserInfo(request);
     }
 
@@ -156,7 +160,8 @@ public class UserInfoController extends ABaseController {
         UserInfo userInfo = new UserInfo();
         userInfo.setPassword(StringUtils.encodingByMd5(password));
         userInfoService.updateUserInfoByUserId(userInfo, tokenUserInfoDto.getUserId());
-        //TODO 重新登陆 强制退出
+        //重新登陆 强制退出
+        channelContextUtils.closeContact(tokenUserInfoDto.getUserId());
         return getSuccessResponseVO(null);
     }
 
@@ -167,8 +172,7 @@ public class UserInfoController extends ABaseController {
     @GlobalInterceptor
     public BaseResponse<?> updatePassword(HttpServletRequest request) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserDto(request);
-
-        //TODO 重新登陆 强制退出 关闭WS链接
+        channelContextUtils.closeContact(tokenUserInfoDto.getUserId());
         return getSuccessResponseVO(null);
     }
 }

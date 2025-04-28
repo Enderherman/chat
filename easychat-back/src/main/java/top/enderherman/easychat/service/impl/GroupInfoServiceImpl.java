@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -14,24 +15,22 @@ import org.springframework.web.multipart.MultipartFile;
 import top.enderherman.easychat.component.RedisComponent;
 import top.enderherman.easychat.config.AppConfig;
 import top.enderherman.easychat.constants.Constants;
-import top.enderherman.easychat.entity.enums.GroupStatusEnum;
+import top.enderherman.easychat.entity.dto.MessageSendDTO;
+import top.enderherman.easychat.entity.dto.TokenUserInfoDto;
+import top.enderherman.easychat.entity.enums.*;
+import top.enderherman.easychat.entity.po.*;
+import top.enderherman.easychat.entity.query.*;
+import top.enderherman.easychat.mappers.*;
+import top.enderherman.easychat.service.UserContactService;
+import top.enderherman.easychat.utils.CopyUtils;
 import top.enderherman.easychat.utils.StringUtils;
 import top.enderherman.easychat.entity.dto.SysSettingDto;
-import top.enderherman.easychat.entity.enums.PageSize;
 import top.enderherman.easychat.common.ResponseCodeEnum;
-import top.enderherman.easychat.entity.enums.UserContactStatusEnum;
-import top.enderherman.easychat.entity.enums.UserContactTypeEnum;
-import top.enderherman.easychat.entity.po.UserContact;
-import top.enderherman.easychat.entity.query.GroupInfoQuery;
-import top.enderherman.easychat.entity.po.GroupInfo;
-import top.enderherman.easychat.entity.query.UserContactQuery;
 import top.enderherman.easychat.entity.vo.PaginationResultVO;
-import top.enderherman.easychat.entity.query.SimplePage;
 import top.enderherman.easychat.exception.BusinessException;
-import top.enderherman.easychat.mappers.GroupInfoMapper;
-import top.enderherman.easychat.mappers.UserContactMapper;
 import top.enderherman.easychat.service.GroupInfoService;
-import top.enderherman.easychat.utils.StringUtils;
+import top.enderherman.easychat.webSocket.ChannelContextUtils;
+import top.enderherman.easychat.webSocket.MessageHandler;
 
 
 /**
@@ -40,17 +39,46 @@ import top.enderherman.easychat.utils.StringUtils;
 @Service("groupInfoService")
 public class GroupInfoServiceImpl implements GroupInfoService {
 
+    @Lazy
     @Resource
-    private GroupInfoMapper<GroupInfo, GroupInfoQuery> groupInfoMapper;
+    private GroupInfoService groupInfoService;
 
     @Resource
-    private RedisComponent redisComponent;
+    private GroupInfoMapper<GroupInfo, GroupInfoQuery> groupInfoMapper;
 
     @Resource
     private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
 
     @Resource
+    private ChatSessionMapper<ChatSession, ChatSessionQuery> chatSessionMapper;
+
+    @Resource
+    private ChatSessionUserMapper<ChatSessionUser, ChatSessionUserQuery> chatSessionUserMapper;
+
+    @Resource
+    private ChatMessageMapper<ChatMessage, ChatMessageQuery> chatMessageMapper;
+
+    @Resource
+    private ChatSessionUserServiceImpl chatSessionUserService;
+
+    @Resource
     private AppConfig appConfig;
+
+    @Resource
+    private RedisComponent redisComponent;
+
+    @Resource
+    private ChannelContextUtils channelContextUtils;
+
+    @Resource
+    private MessageHandler messageHandler;
+
+    @Resource
+    private UserContactService userContactService;
+
+    @Resource
+    private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
+
 
     /**
      * 根据条件查询列表
@@ -79,8 +107,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         SimplePage page = new SimplePage(param.getPageNo(), count, pageSize);
         param.setSimplePage(page);
         List<GroupInfo> list = this.findListByParam(param);
-        PaginationResultVO<GroupInfo> result = new PaginationResultVO(count, page.getPageSize(), page.getPageNo(), page.getPageTotal(), list);
-        return result;
+        return new PaginationResultVO<>(count, page.getPageSize(), page.getPageNo(), page.getPageTotal(), list);
     }
 
     /**
@@ -155,6 +182,9 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         return this.groupInfoMapper.deleteByGroupId(groupId);
     }
 
+    /**
+     * 新增或修改群聊
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveGroup(GroupInfo groupInfo, MultipartFile avatarFile, MultipartFile avatarCover) {
@@ -172,9 +202,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
                 throw new BusinessException("最多支持创建" + sysSettingDto.getMaxGroupCount() + "个群聊");
             }
 
-            //TODO 新建群聊记得传头像喔
             if (avatarFile == null) {
-                //throw new BusinessException(ResponseCodeEnum.CODE_600);
+                throw new BusinessException(ResponseCodeEnum.CODE_600);
             }
 
             groupInfo.setCreateTime(currentDate);
@@ -190,8 +219,45 @@ public class GroupInfoServiceImpl implements GroupInfoService {
             userContact.setCreateTime(currentDate);
             userContactMapper.insert(userContact);
 
-            //TODO 创建会话
-            //TODO 发送欢迎消息
+            // 2.1创建会话
+            String sessionId = StringUtils.getChatSessionId4Group(groupInfo.getGroupId());
+            ChatSession chatSession = new ChatSession();
+            chatSession.setSessionId(sessionId);
+            chatSession.setLastMessage(MessageTypeEnum.GROUP_CREATE.getInitMessage());
+            chatSession.setLastReceiveTime(currentDate.getTime());
+            chatSessionMapper.insert(chatSession);
+
+            // 2.2创建群组与会话之间的关系
+            ChatSessionUser chatSessionUser = new ChatSessionUser();
+            chatSessionUser.setUserId(groupInfo.getGroupOwnId());
+            chatSessionUser.setContactId(groupInfo.getGroupId());
+            chatSessionUser.setSessionId(sessionId);
+            chatSessionUser.setContactName(groupInfo.getGroupName());
+            chatSessionUserMapper.insert(chatSessionUser);
+
+
+            // 2.3发送欢迎消息
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setSessionId(sessionId);
+            chatMessage.setMessageType(MessageTypeEnum.GROUP_CREATE.getType());
+            chatMessage.setMessageContent(MessageTypeEnum.GROUP_CREATE.getInitMessage());
+            chatMessage.setSendTime(currentDate.getTime());
+            chatMessage.setContactId(groupInfo.getGroupId());
+            chatMessage.setContactType(UserContactTypeEnum.GROUP.getType());
+            chatMessage.setStatus(MessageStatusEnum.SENT.getStatus());
+            chatMessageMapper.insert(chatMessage);
+            //2.4 群组添加到联系人联系人缓存中
+            redisComponent.saveContact(groupInfo.getGroupOwnId(), groupInfo.getGroupId());
+            //2.5 将联系人通道添加到群组通道
+            channelContextUtils.addUser2Group(groupInfo.getGroupOwnId(), groupInfo.getGroupId());
+            //2.6 发送ws消息
+            chatSessionUser.setLastMessage(MessageTypeEnum.GROUP_CREATE.getInitMessage());
+            chatSessionUser.setLastReceiveTime(currentDate.getTime());
+            chatSessionUser.setMemberCount(1);
+            MessageSendDTO messageSendDTO = CopyUtils.copy(chatMessage, MessageSendDTO.class);
+            messageSendDTO.setExtentData(chatSessionUser);
+            messageSendDTO.setLastMessage(MessageTypeEnum.GROUP_CREATE.getInitMessage());
+            messageHandler.sendMessage(messageSendDTO);
 
 
         }
@@ -203,9 +269,17 @@ public class GroupInfoServiceImpl implements GroupInfoService {
             }
 
             groupInfoMapper.updateByGroupId(groupInfo, groupInfo.getGroupId());
-            //TODO 更新相关表冗余信息
+            //更新相关表冗余信息
+            String contactName = null;
+            if (!dbInfo.getGroupName().equals(groupInfo.getGroupName())) {
+                contactName = groupInfo.getGroupName();
+            }
+            if (contactName != null) {
+                //更新聊天中名称
+                chatSessionUserService.updateRedundancyInfo(contactName, groupInfo.getGroupId());
+            }
 
-            //TODO 修改群昵称发送ws信息
+
         }
 
         //3.群头像处理
@@ -219,14 +293,69 @@ public class GroupInfoServiceImpl implements GroupInfoService {
             avatarFolder.mkdirs();
         }
         //3.2头像路径
-        String filePath = avatarFolder.getPath() + groupInfo.getGroupId() + Constants.IMAGE_SUFFIX;
+        String filePath = avatarFolder.getPath() + "/" + groupInfo.getGroupId() + Constants.IMAGE_SUFFIX;
         try {
             avatarFile.transferTo(new File(filePath));
-            avatarCover.transferTo(new File(filePath + Constants.COVER_IMAGE_SUFFIX));
+            if (avatarCover != null) {
+                avatarCover.transferTo(new File(filePath + Constants.COVER_IMAGE_SUFFIX));
+            }
         } catch (IOException e) {
             throw new BusinessException(ResponseCodeEnum.CODE_500);
         }
 
+
+    }
+
+    /**
+     * 退出或被移除群聊
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void leaveGroup(String userId, String groupId, MessageTypeEnum messageTypeEnum) {
+        GroupInfo groupInfo = groupInfoMapper.selectByGroupId(groupId);
+        if (groupInfo == null) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        //创建者不能退群 只能解散
+        if (userId.equals(groupInfo.getGroupOwnId())) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+
+        Integer count = userContactMapper.deleteByUserIdAndContactId(userId, groupId);
+        if (count == 0) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        UserInfo user = userInfoMapper.selectByUserId(userId);
+        String sessionId = StringUtils.getChatSessionId4Group(groupId);
+        Date curTime = new Date();
+        String messageContent = String.format(messageTypeEnum.getInitMessage(), user.getNickName());
+
+        // 1.更新会话消息
+        ChatSession chatSession = new ChatSession();
+        chatSession.setSessionId(sessionId);
+        chatSession.setLastMessage(messageContent);
+        chatSession.setLastReceiveTime(curTime.getTime());
+        chatSessionMapper.updateBySessionId(chatSession, sessionId);
+        // 2.记录群消息
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setSessionId(sessionId);
+        chatMessage.setSendTime(curTime.getTime());
+        chatMessage.setContactType(UserContactTypeEnum.GROUP.getType());
+        chatMessage.setStatus(MessageStatusEnum.SENT.getStatus());
+        chatMessage.setMessageType(messageTypeEnum.getType());
+        chatMessage.setContactId(groupId);
+        chatMessage.setMessageContent(messageContent);
+        chatMessageMapper.insert(chatMessage);
+        // 3.发送解散通知消息
+        UserContactQuery userContactQuery = new UserContactQuery();
+        userContactQuery.setContactId(groupId);
+        userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+        Integer memberCount = userContactMapper.selectCount(userContactQuery);
+
+        MessageSendDTO messageSendDTO = CopyUtils.copy(chatMessage, MessageSendDTO.class);
+        messageSendDTO.setExtentData(userId);
+        messageSendDTO.setMemberCount(memberCount);
+        messageHandler.sendMessage(messageSendDTO);
 
     }
 
@@ -254,9 +383,56 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         userContact.setStatus(UserContactStatusEnum.DEL.getStatus());
         userContactMapper.updateByParam(userContact, userContactQuery);
 
-        //TODO 移除相关联系人缓存
+        //移除相关联系人缓存
+        List<UserContact> userContactList = userContactMapper.selectList(userContactQuery);
+        for (UserContact userContact2 : userContactList) {
+            redisComponent.removeUserContact(userContact2.getUserId(), userContact2.getContactId());
+        }
 
-        //TODO 更新会话消息 记录群消息 发送群解散消息
+        String sessionId = StringUtils.getChatSessionId4Group(groupId);
+        Date currentDate = new Date();
+        String messageContent = MessageTypeEnum.DISSOLUTION_GROUP.getInitMessage();
+        ChatSession chatSession = new ChatSession();
+        chatSession.setLastMessage(messageContent);
+        chatSession.setLastReceiveTime(currentDate.getTime());
+        chatSessionMapper.updateBySessionId(chatSession, sessionId);
 
+
+        //更新会话消息 记录群消息
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setSessionId(sessionId);
+        chatMessage.setSendTime(currentDate.getTime());
+        chatMessage.setContactType(UserContactTypeEnum.GROUP.getType());
+        chatMessage.setStatus(MessageStatusEnum.SENT.getStatus());
+        chatMessage.setMessageType(MessageTypeEnum.DISSOLUTION_GROUP.getType());
+        chatMessage.setContactId(groupId);
+        chatMessage.setMessageContent(messageContent);
+        chatMessageMapper.insert(chatMessage);
+
+        //发送群解散消息
+        MessageSendDTO messageSendDTO = CopyUtils.copy(chatMessage, MessageSendDTO.class);
+        messageHandler.sendMessage(messageSendDTO);
+    }
+
+    /**
+     * 增加或者移除群成员
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void addOrRemoveGroupUser(TokenUserInfoDto tokenUserInfoDto, String groupId, String contactIds, Integer opType) {
+        GroupInfo dbInfo = groupInfoMapper.selectByGroupId(groupId);
+        if (dbInfo == null || !dbInfo.getGroupOwnId().equals(tokenUserInfoDto.getUserId())) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        String[] contactIdList = contactIds.split(",");
+        for (String contactId : contactIdList) {
+            // 移除群员
+            if (Constants.ZERO.equals(opType)) {
+                //启用事务 交给spring管理
+                groupInfoService.leaveGroup(contactId, groupId, MessageTypeEnum.REMOVE_GROUP);
+            } else {
+                userContactService.addContact(contactId, null, groupId, UserContactTypeEnum.GROUP.getType(), "用户" + contactId + "加入群聊");
+            }
+        }
     }
 }

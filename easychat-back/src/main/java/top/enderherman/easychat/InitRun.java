@@ -33,9 +33,9 @@ public class InitRun implements ApplicationRunner {
             new Thread(nettyWebSocketStart).start();
 
         } catch (SQLException e) {
-            log.error("数据库配置异常");
+            log.error("数据库配置异常",e);
         } catch (RedisConnectionFailureException e) {
-            log.error("redis配置异常");
+            log.error("redis配置异常",e);
         } catch (Exception e) {
             log.error("服务启动失败");
         }

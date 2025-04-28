@@ -96,4 +96,9 @@ public interface UserContactService {
 	 * 更改联系人类型
 	 */
     void changeContactType(String userId, String contactId, Integer status);
+
+	/**
+	 * 添加机器人好有
+	 */
+    void addRobotContact(String userId);
 }

@@ -9,6 +9,7 @@ import top.enderherman.easychat.exception.BusinessException;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -87,5 +88,59 @@ public class RedisUtils<V> {
                 redisTemplate.delete(Arrays.asList(key));
             }
         }
+    }
+
+    /**
+     * 设置过期时间
+     */
+    public boolean expire(String key, long time) {
+        try {
+            if (time > 0) {
+                redisTemplate.expire(key, time, TimeUnit.SECONDS);
+            }
+            return true;
+        } catch (Exception e) {
+            log.error("redis<UNK>, key: {}, time: {}, error: {}", key, time, e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * 单个添加
+     */
+    public boolean listPush(String key, V value, long time) {
+        try {
+            redisTemplate.opsForList().leftPush(key, value);
+            if (time > 0) {
+                expire(key, time);
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 批量添加
+     */
+    public boolean listPushAll(String key, List<V> values, long time) {
+        try {
+            redisTemplate.opsForList().leftPushAll(key, values);
+            if (time > 0) {
+                expire(key, time);
+            }
+            return true;
+        } catch (Exception e) {
+            log.error("redis<UNK>, key: {}, values: {}, error: {}", key, values, e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * 获取联系人列表
+     */
+    public List<V> getQueueList(String key) {
+        return redisTemplate.opsForList().range(key, 0, -1);
     }
 }

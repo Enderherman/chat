@@ -3,6 +3,8 @@ package top.enderherman.easychat.service;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
+import top.enderherman.easychat.entity.dto.TokenUserInfoDto;
+import top.enderherman.easychat.entity.enums.MessageTypeEnum;
 import top.enderherman.easychat.entity.query.GroupInfoQuery;
 import top.enderherman.easychat.entity.po.GroupInfo;
 import top.enderherman.easychat.entity.vo.PaginationResultVO;
@@ -75,9 +77,18 @@ public interface GroupInfoService {
      */
     void saveGroup(GroupInfo groupInfo, MultipartFile avatarFile, MultipartFile avatarCover);
 
+    /**
+     * 退群
+     */
+    void leaveGroup(String userId, String groupId, MessageTypeEnum messageTypeEnum);
 
     /**
      * 解散群组
      */
     void dissolutionGroup(String groupOwnerId, String groupId);
+
+    /**
+     * 移除或者添加群成员
+     */
+    void addOrRemoveGroupUser(TokenUserInfoDto tokenUserInfoDto, String groupId, String selectContacts,Integer opType);
 }
