@@ -40,7 +40,18 @@ public class AppUpdateController {
      */
     @RequestMapping("/saveUpdate")
     @GlobalInterceptor(checkAdmin = true)
-    public BaseResponse<?> saveUpdate(@RequestBody AppUpdate appUpdate, MultipartFile file) throws IOException {
+    public BaseResponse<?> saveUpdate(Integer id,
+                                      @NotNull String version,
+                                      @NotNull String updateDesc,
+                                      @NotNull Integer fileType,
+                                      String outerLink,
+                                      MultipartFile file) throws IOException {
+        AppUpdate appUpdate = new AppUpdate();
+        appUpdate.setId(id);
+        appUpdate.setVersion(version);
+        appUpdate.setUpdateDesc(updateDesc);
+        appUpdate.setFileType(fileType);
+        appUpdate.setOuterLink(outerLink==null?"":outerLink);
         appUpdateService.saveUpdate(appUpdate, file);
         return BaseResponse.success();
     }

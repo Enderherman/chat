@@ -25,7 +25,7 @@ import java.io.File;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/account")
+@RequestMapping("/admin")
 public class ManageController extends ABaseController {
 
     @Resource

@@ -174,8 +174,8 @@ public class AppUpdateServiceImpl implements AppUpdateService {
         List<AppUpdate> list = appUpdateMapper.selectList(query);
         if (!list.isEmpty()) {
             AppUpdate latest = list.get(0);
-            long dbVersion = Long.parseLong(latest.getVersion().replace(",", ""));
-            long currentVersion = Long.parseLong(appUpdate.getVersion().replace(",", ""));
+            long dbVersion = Long.parseLong(latest.getVersion().replace(".", ""));
+            long currentVersion = Long.parseLong(appUpdate.getVersion().replace(".", ""));
             //新增时
             if (appUpdate.getId() == null && currentVersion <= dbVersion) {
                 throw new BusinessException("当前版本必须大于历史版本");

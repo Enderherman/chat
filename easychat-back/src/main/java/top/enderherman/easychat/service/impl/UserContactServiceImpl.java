@@ -368,7 +368,7 @@ public class UserContactServiceImpl implements UserContactService {
             receiveSessionUser.setContactId(applyUserId);
             receiveSessionUser.setSessionId(sessionId);
             UserInfo applyUser = userInfoMapper.selectByUserId(applyUserId);
-            applySessionUser.setContactName(applyUser.getNickName());
+            receiveSessionUser.setContactName(applyUser.getNickName());
             chatSessionUserList.add(receiveSessionUser);
 
             chatSessionUserMapper.insertBatch(chatSessionUserList);
